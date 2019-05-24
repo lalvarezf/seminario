@@ -1,0 +1,376 @@
+FALTA. 
+- marca siempre como completadas las pestañas, aunque no lo esten
+
+- Cambiar icono de descarga
+
+	
+DUDAS
+- que pasa se si desseleccionan deudores en la pantalla previa? quien elimina esos documentos AFA? 
+- La pantalla no incluye el check de permitir o no facturación atrasada ya que en este tipo de contratos AFA siempre está permitida. -> se pone como campo oculto para guardarlo en bbdd??
+
+paginate_button current
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// quitamos el estilo de seleccionado en la fila
+var rowClass = $("tr[data-id='" + rowId + "']");
+if (rowClass.hasClass("selected")) {
+rowClass.removeClass("selected");
+}
+
+				case 'multi':
+			// Select row
+			table.addClass("hover selectable");
+			table.delegate("tbody tr","click",function(e){
+				var tr = $(this);
+				tr.each(Grid.toggleRowSelection);
+			});
+			break;
+		}
+		
+		
+		
+		/clientsgrid.RowManager.do
+		
+		
+		
+		
+		rowSelection : function(rowNum, response, selected) {
+			// alert("rowSelection");
+			// CUANDO ELIMINE ESTA FUNCION DEJO DE FUNCIONAR LA TABLA -> NO ELIMINAR POR AHORA
+			// creo que es porque en el gridmodel esta puesta aqui: <rowSelectionCallback>DebtorsAFASelection.rowSelection</rowSelectionCallback>
+		
+			debugger;
+			// recorremos las pestañas
+			var allHolderTabs = $('.page .tab-content .tab-contents').find('.tab-content');
+			allHolderTabs.each(function(index) {
+				// alert("tab");
+				// buscamos el grid de la pestaña
+				var debtorGrids = $('.grid');
+				for(var i=0; i<debtorGrids.length; i++) {					
+					var grid = debtorGrids[i];
+					var table = $(grid).DataTable();
+					// recorremos las filas de la tabla
+					table.rows().every ( function ( rowIdx, tableLoop, rowLoop ) {
+						var row = table.row( rowIdx );
+		    			var rowId = $(row.node()).data("id");
+		    			// AQUI AÑADIOS A LA ROWID LOS CAMPOS DE MCDOMICI Y MCDOCUME
+		    			
+		    			var rowKey = Grid.explodeString(rowId);
+		    			
+						// Si estamos en la fila que ha cambiado
+						if(rowNum == rowIdx){
+							var valor = $('input[name^="trsfcodeudafa.mcdocume"]')[rowNum].value;
+							// alert("estamos en la fila ["+rowNum+"] con mcdocume ["+valor+"]");
+							// Añadimos a la rowKey el valor de los radio (asociado al hidden)
+							// alert("rowKey ["+rowKey+"]");
+											
+							// Modificamos el objeto de la session con este valor
+							var tableId = "contractsDebtorsAFAFactoringGrid";
+							var url = Grid.constants.rowManagerUrl;
+							var parameters = {
+									currentPage: 1,
+									gridModelId: tableId,
+									rowId: rowKey,
+									multiselection: true,
+							};
+/* 							var extraParametersFunction = table.data("extraParameters");
+							if(extraParametersFunction){
+								extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+								parameters.extraParameters = eval(extraParametersFunction);
+							}
+ */							var selectionCallback = table.data("selectionCallback");
+							Loader.syncRequest(url,parameters,function(response){
+/* 								if(selectionCallback){
+									selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',true)";
+									eval(selectionCallback);
+								}
+								row.addClass("selected").hide().show(0);
+								row.trigger(Grid.events.selectionChanged);
+								row.trigger(Grid.events.rowDetail);
+ */							});
+
+						}
+	    			});
+
+				}
+
+			});
+			
+				/*
+				debugger;
+				var row = $(this);
+				var table = row.closest(".grid");
+				// var rowId = row.data("id");
+				var rowData = Grid.explodeString(rowId);
+				var tableId = "contractsDebtorsAFAFactoringGrid";
+				var url = Grid.constants.rowManagerUrl;
+				var parameters = {
+						currentPage: 1,
+						gridModelId: tableId,
+						rowId: rowData,
+						multiselection: true,
+				};
+				var extraParametersFunction = table.data("extraParameters");
+				if(extraParametersFunction){
+					extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+					parameters.extraParameters = eval(extraParametersFunction);
+				}
+				var selectionCallback = table.data("selectionCallback");
+				Loader.syncRequest(url,parameters,function(response){
+					if(selectionCallback){
+						selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',true)";
+						eval(selectionCallback);
+					}
+					row.addClass("selected").hide().show(0);
+					row.trigger(Grid.events.selectionChanged);
+					row.trigger(Grid.events.rowDetail);
+				});*/
+				
+				/*debugger;
+				
+				var tab = $(this);
+				var grid = tab.find("table.grid");
+    			var table = grid.DataTable();
+			
+				var row = table.row( rowNum );
+    			var rowId = $(row.node()).data("id");
+    			var rowKey = Grid.explodeString(rowId);
+
+				
+				// var row = $(this);
+				// var table = row.closest(".grid");
+				// var rowId = row.data("id");
+				var rowData = Grid.explodeString(rowId);
+				// var tableId = Grid.getBackendTableId(table);
+				var tableId = "contractsDebtorsAFAFactoringGrid";
+				var url = Grid.constants.rowManagerUrl;
+				var parameters = {
+						currentPage: 1,
+						gridModelId: tableId,
+						rowId: rowData,
+				};
+				var extraParametersFunction = table.data("extraParameters");
+				if(extraParametersFunction){
+					extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+					parameters.extraParameters = eval(extraParametersFunction);
+				}
+				var selectionCallback = table.data("selectionCallback");
+				Loader.syncRequest(url,parameters,function(response){
+					if(selectionCallback){
+						selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',true)";
+						eval(selectionCallback);
+					}
+					// row.addClass("selected").hide().show(0);
+					// row.trigger(Grid.events.selectionChanged);
+					// row.trigger(Grid.events.rowDetail);
+				});
+ 				*/				
+				
+		},
+		
+		
+		
+		
+		
+		
+		selectRow:function(){
+		var row = $(this);
+		var table = row.closest(".grid");
+		var rowId = row.data("id");
+		var rowData = Grid.explodeString(rowId);
+		var tableId = Grid.getBackendTableId(table);
+		var url = Grid.constants.rowManagerUrl;
+		var parameters = {
+				currentPage: 1,
+				gridModelId: tableId,
+				rowId: rowData,
+		};
+		var extraParametersFunction = table.data("extraParameters");
+		if(extraParametersFunction){
+			extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+			parameters.extraParameters = eval(extraParametersFunction);
+		}
+		var selectionCallback = table.data("selectionCallback");
+		Loader.syncRequest(url,parameters,function(response){
+			if(selectionCallback){
+				selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',true)";
+				eval(selectionCallback);
+			}
+			row.addClass("selected").hide().show(0);
+			row.trigger(Grid.events.selectionChanged);
+			row.trigger(Grid.events.rowDetail);
+		});
+	},
+	deselectRow:function(){
+		var row = $(this);
+		if(row.hasClass("selected")){
+			var table = row.closest(".grid");
+			var rowId = row.data("id");
+			var rowData = Grid.explodeString(rowId);
+			var tableId = Grid.getBackendTableId(table);
+			var url = Grid.constants.rowManagerUrl;
+			var parameters = {
+					currentPage: 1,
+					gridModelId: tableId,
+					rowId: rowData,
+			};
+			var extraParametersFunction = table.data("extraParameters");
+			if(extraParametersFunction){
+				extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+				parameters.extraParameters = eval(extraParametersFunction);
+			}
+			var selectionCallback = table.data("selectionCallback");
+			Loader.syncRequest(url,parameters,function(response){
+				if(selectionCallback){
+					selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',false)";
+					eval(selectionCallback);
+				}
+				row.find(".tooltiped").each(Tooltips.resetTooltip);
+				row.removeClass("selected").hide().show(0);
+				row.trigger(Grid.events.selectionChanged);
+			});
+		}
+	},
+	
+	
+	
+	
+	
+	
+	var row = $(this);
+		if(row.hasClass("selected")){
+			var table = row.closest(".grid");
+			var rowId = row.data("id");
+			var rowData = Grid.explodeString(rowId);
+			var tableId = Grid.getBackendTableId(table);
+			var url = Grid.constants.rowManagerUrl;
+			var parameters = {
+					currentPage: 1,
+					gridModelId: tableId,
+					rowId: rowData,
+			};
+			var extraParametersFunction = table.data("extraParameters");
+			if(extraParametersFunction){
+				extraParametersFunction = extraParametersFunction+"('"+rowId+"')";
+				parameters.extraParameters = eval(extraParametersFunction);
+			}
+			var selectionCallback = table.data("selectionCallback");
+			Loader.syncRequest(url,parameters,function(response){
+				if(selectionCallback){
+					selectionCallback = selectionCallback+"('"+rowId+"','"+response+"',false)";
+					eval(selectionCallback);
+				}
+				row.find(".tooltiped").each(Tooltips.resetTooltip);
+				row.removeClass("selected").hide().show(0);
+				row.trigger(Grid.events.selectionChanged);
+			});
+			
+			
+			
+			contractsInProcessFactoringGrid
+			
+			
+			
+						var tabContent = $(".tab-content");
+			var changedForms = tabContent.find(".changed form");
+
+			
+			var allHolderTabs =$('.page .tab-content .tab-contents').find('.tab-content');
+			allHolderTabs.each(function(index) {	
+			
+				// comprobamos que todos los radio tengan valor
+				var tab = $('#NewContractDocAssingmentAFAStandard .tabs.checklist .tab').eq(index);
+
+				
+			
+			}
+			
+			
+			
+			
+			Entrega del 23/04/2019. RFC000001210984 - Java Rest HD0000009792396- caracteres extraños usuarios WS
+			
+			
+			
+			
+	/**
+	 * Obtiene la coleccion de deudores de la pantalla, con los datos obtenidos por pantalla
+	 * 
+	 * @param colTrsfcodeudoresKey
+	 * @param form
+	 * @return
+	 * @throws MVCException
+	 */
+	private List<DebtorsCRM> assemblerDebtors(Collection<TrsfcodeudoresKey> colTrsfcodeudoresKey, final ClientsForm form) throws MVCException {
+		// recorremos los deudores del grid e incluimos el valor del mcdomici y mcdocumen
+		List<DebtorsCRM> col = new ArrayList() ;
+		int i = 0;
+		for(TrsfcodeudoresKey trsfcodeudoresKey : colTrsfcodeudoresKey) {
+			i++;
+			
+			// montamos el deudor
+			Trsfcodeudores debtor = new Trsfcodeudores();
+			debtor.setTrsfcodeudoresKey(trsfcodeudoresKey);
+			
+			// montamos el CRM del deudor
+			DebtorsCRM obj = new DebtorsCRM();
+			obj.setTrsfcodeudores(debtor);
+			// añadimos los campos especificos de esta pamtalla
+			obj.getTrsfcodeudafa().setMcdocume(getFormProperty(form, "trsfcodeudafa.mcdocume_" + i));
+			obj.getTrsfcodeudafa().setMcdomici(getFormProperty(form, "trsfcodeudafa.mcdomici_" + i));
+			
+//			System.out.println("NIF DEUDOR ["+trsfcodeudoresKey.getNunifDeudor()+"] con trsfcodeudafa.mcdocume ["
+//					+obj.getTrsfcodeudafa().getMcdocume()+"] y trsfcodeudafa.mcdomici ["
+//						+obj.getTrsfcodeudafa().getMcdomici()+"]");
+
+			System.out.println("NIF DEUDOR ["+trsfcodeudoresKey.getNunifDeudor()+"] con trsfcodeudafa.mcdocume ["
+					+trsfcodeudoresKey.getTrsfcodeudafa().getMcdocume()+"] y trsfcodeudafa.mcdomici ["
+						+trsfcodeudoresKey.getTrsfcodeudafa().getMcdomici()+"]");
+
+			
+			// cargamos el CRM a la coleccion
+			col.add(obj);
+		}
+		// devolvemos la coleccion de CRM con los datos obtenidos de pantalla
+		return col;
+	}
+			
+			
+			
+			
+			
+			/* 			// cojo las pestañas LAF
+			var allLAFTabs = $('.LAF');
+			allLAFTabs.each(function(index) {
+				// var value = $(this).find("[data-nunif]").attr("value");
+
+
+				var value = $(this).attr("data-nunif");
+				alert(value);
+				
+				
+			}); */
+
+			
+			tabContent.find("[data-apply-to-all]").attr('disabled', false);
+ var hiddenData = changedForm.find("input[type='hidden']").serialize();
+ $("#boton").attr("value")
+ 
+ 
+ 
+ 
+ var tab = $('#NewContractDocAssingmentAFAStandard .tabs.checklist .tab').eq(index);
+ 
+ 
+ 
+ div.data-container label.checkbox-inline {
+	min-height: 20px;
+	padding-left: 20px;
+	margin-bottom: 10px;
+	width: 350px; -> al pasar esto de 160 a 350 el check deja de funcionar
+}
+
+
+
