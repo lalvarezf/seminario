@@ -1,6 +1,3 @@
-﻿cambios en la rama1
-
-
 FALTA. 
 - marca siempre como completadas las pestañas, aunque no lo esten
 
